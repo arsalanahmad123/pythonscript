@@ -34,23 +34,30 @@ def generate_chart_data(file_path, start_year, start_day, end_year, end_day):
 
 @app.route('/api/chart_data')
 def chart_data():
-    # Get filter parameters from the query string
-    start_year = int(request.args.get('start_year'))
-    end_year = int(request.args.get('end_year'))
-    start_day = int(request.args.get('start_day'))
-    end_day = int(request.args.get('end_day'))
-    data_source = request.args.get('source')  # Get the selected data source
+    try:
+        # Get filter parameters from the query string
+        start_year = int(request.args.get('start_year'))
+        end_year = int(request.args.get('end_year'))
+        start_day = int(request.args.get('start_day'))
+        end_day = int(request.args.get('end_day'))
+        data_source = request.args.get('source')  # Get the selected data source
 
-    # Define the Excel file path based on the selected data source
-    file_path = f'static/{data_source}.xlsx'
+        # Check if any of the query parameters are None
+        if None in (start_year, end_year, start_day, end_day, data_source):
+            return jsonify({'error': 'One or more query parameters are missing or invalid'}), 400
 
-    # Generate chart data
-    years, values = generate_chart_data(file_path, start_year, start_day, end_year, end_day)
+        # Define the Excel file path based on the selected data source
+        file_path = f'static/{data_source}.xlsx'
 
-    if years is not None and values is not None:
-        return jsonify({'years': years, 'values': values})
-    else:
-        return jsonify({'error': 'No data found for the specified range'}), 404
+        # Generate chart data
+        years, values = generate_chart_data(file_path, start_year, start_day, end_year, end_day)
+
+        if years is not None and values is not None:
+            return jsonify({'years': years, 'values': values})
+        else:
+            return jsonify({'error': 'No data found for the specified range'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, port=os.getenv("PORT", default=5000))
