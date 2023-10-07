@@ -43,7 +43,7 @@ def chart_data():
         data_source = request.args.get('source')  # Get the selected data source
 
         # Check if any of the query parameters are missing or not numeric
-        if not all(param.isdigit() for param in [start_year, end_year, start_day, end_day]) or data_source is None:
+        if any(param is None or not param.isdigit() for param in [start_year, end_year, start_day, end_day]) or data_source is None:
             return jsonify({'error': 'One or more query parameters are missing or invalid'}), 400
 
         # Convert parameters to integers
@@ -64,6 +64,7 @@ def chart_data():
             return jsonify({'error': 'No data found for the specified range'}), 404
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
 
 
 if __name__ == '__main__':
