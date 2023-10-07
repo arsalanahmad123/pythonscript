@@ -36,15 +36,21 @@ def generate_chart_data(file_path, start_year, start_day, end_year, end_day):
 def chart_data():
     try:
         # Get filter parameters from the query string
-        start_year = int(request.args.get('start_year'))
-        end_year = int(request.args.get('end_year'))
-        start_day = int(request.args.get('start_day'))
-        end_day = int(request.args.get('end_day'))
+        start_year = request.args.get('start_year')
+        end_year = request.args.get('end_year')
+        start_day = request.args.get('start_day')
+        end_day = request.args.get('end_day')
         data_source = request.args.get('source')  # Get the selected data source
 
-        # Check if any of the query parameters are None
-        if None in (start_year, end_year, start_day, end_day, data_source):
+        # Check if any of the query parameters are missing or not numeric
+        if not all(param.isdigit() for param in [start_year, end_year, start_day, end_day]) or data_source is None:
             return jsonify({'error': 'One or more query parameters are missing or invalid'}), 400
+
+        # Convert parameters to integers
+        start_year = int(start_year)
+        end_year = int(end_year)
+        start_day = int(start_day)
+        end_day = int(end_day)
 
         # Define the Excel file path based on the selected data source
         file_path = f'static/{data_source}.xlsx'
@@ -58,6 +64,7 @@ def chart_data():
             return jsonify({'error': 'No data found for the specified range'}), 404
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=os.getenv("PORT", default=5000))
