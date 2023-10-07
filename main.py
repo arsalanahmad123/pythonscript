@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, render_template
 import pandas as pd
 import numpy as np
+import os
 import math
 from flask_cors import CORS
 app = Flask(__name__, static_folder='static')
@@ -52,4 +53,4 @@ def chart_data():
         return jsonify({'error': 'No data found for the specified range'}), 404
 
 if __name__ == '__main__':
-    app.run() 
+    app.run(debug=True, port=os.getenv("PORT", default=5000))
